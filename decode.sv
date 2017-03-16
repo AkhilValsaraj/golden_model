@@ -1,15 +1,4 @@
-`define ADD	0001
-`define AND	0101
-`define NOT	1001
-`define BR	
-`define JMP
-`define LD	0010
-`define LDR	0110
-`define LDI	1010
-`define LEA	1110
-`define ST	0011
-`define STR	0111
-`define STI	1011
+
 
 
 module decode(
