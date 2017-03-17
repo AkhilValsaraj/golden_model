@@ -10,6 +10,8 @@ module fetch(
 	output logic instrmem_rd
 );
 
+logic [15:0] next_addr, next_pc;
+
 assign npc = pc + 1;	//asynchronous npc
 
 always@(posedge clock)
