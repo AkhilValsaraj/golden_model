@@ -26,7 +26,7 @@ virtual dut_Probe_de decode_if;
 
 function new(virtual LC3_io top_io, virtual dut_Probe_de decode_if);
 	this.top_io = top_io;
-	this.fetch_if = decode_if;	
+	this.decode_if = decode_if;	
 endfunction
 
 task reset;
@@ -41,9 +41,21 @@ task run_decode;
 	if(top_io.reset)
 		begin
 			reset();
+					
+			// check if this is right clocking block
+			@LC3_io.cb	
+
+			IR			=	decode_if.decode_instr_dout;
+			npc_out		=	decode_if.decode_npc_in;
+			
+			W_Control	=	w_control;
+			E_Control	=	e_control;
+			Mem_Control	=	mem_control;
+
 		end
 
 	else
+	if(decode_if.decode_enable_decode)
 		begin
 			w_control = 0;
 			alu_control = 0; 
@@ -53,7 +65,7 @@ task run_decode;
 			mem_control = 0;
 			
 			//W_Control
-			case(Instr_dout[15:12])
+			case(IR[15:12])
 				`LD		: w_control = 1;
 				`LDR	: w_control = 1;
 				`LDI	: w_control = 1;
@@ -64,12 +76,12 @@ task run_decode;
 			endcase
 			
 			//E_Control
-			case(Instr_dout[15:12])
+			case(IR[15:12])
 				`ADD	:
-						if(Instr_dout[5]) 
+						if(IR[5]) 
 							op2select = 1;				
 				`AND	: 
-						if(Instr_dout[5]) 
+						if(IR[5]) 
 							begin
 							alu_control = 1; op2select = 1;
 							end 
@@ -93,7 +105,7 @@ task run_decode;
 			
 			
 			//Mem_Control
-			case(Instr_dout[15:12])
+			case(IR[15:12])
 				`LDI	: mem_control = 1;
 				`STI	: mem_control = 1;
 			endcase
@@ -101,8 +113,8 @@ task run_decode;
 			// check if this is right clocking block
 			@LC3_io.cb
 
-			IR			=	Instr_dout;
-			npc_out		=	npc_in;
+			IR			=	decode_if.decode_instr_dout;
+			npc_out		=	decode_if.decode_npc_in;
 			
 			W_Control	=	w_control;
 			E_Control	=	e_control;
